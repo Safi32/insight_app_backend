@@ -7,8 +7,8 @@ services:
       - ${PORT}:${PORT}
     volumes:
       - .:/app
-      - /app/node_modules
     environment:
       - NODE_ENV=${DEV_ENVIRONMENT}
       - PORT=${PORT}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    command: npm run dev
