@@ -8,6 +8,9 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: { type: String, required: true },
     picture: mongoose.Schema.Types.Mixed,
+    department: {
+      type: mongoose.Schema.Types.Mixed, ref: "Department"
+    },
   },
   { timestamps: true }
 );

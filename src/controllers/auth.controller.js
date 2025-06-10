@@ -6,6 +6,8 @@ const {
   getMissingFields,
 } = require("../utils/api.utils");
 
+const allowedRoles = ["owner", "supervisor", "auditor"];
+
 exports.register = async (req, res) => {
   const { role, email, password } = req.body;
   console.log("Register api called");
@@ -17,7 +19,7 @@ exports.register = async (req, res) => {
   if (missingFields.length > 0) {
     return statusCodeTemplate(
       res,
-      401,
+      400,
       `Missing required field(s): ${missingFields.join(", ")}`
     );
   }
@@ -31,10 +33,19 @@ exports.register = async (req, res) => {
         "A user with this email already exists."
       );
 
+    if (!allowedRoles.includes(role.toLowerCase())) {
+      return statusCodeTemplate(
+        res,
+        400,
+        "Invalid user role."
+      );
+    }
+
     const user = new User({
       email: email,
       password: password,
       role: role,
+      department: "",
     });
     await user.save();
 
@@ -53,7 +64,7 @@ exports.login = async (req, res) => {
   if (missingFields.length > 0) {
     return statusCodeTemplate(
       res,
-      401,
+      400,
       `Missing required field(s): ${missingFields.join(", ")}`
     );
   }
