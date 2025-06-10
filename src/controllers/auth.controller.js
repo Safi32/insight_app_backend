@@ -5,8 +5,7 @@ const {
   catchTemplate,
   getMissingFields,
 } = require("../utils/api.utils");
-
-const allowedRoles = ["owner", "supervisor", "auditor"];
+const {allowedRoles} = require("../utils/model.utils");
 
 exports.register = async (req, res) => {
   const { role, email, password } = req.body;
@@ -75,11 +74,11 @@ exports.login = async (req, res) => {
       return statusCodeTemplate(
         res,
         404,
-        "A user with this email doesn't exist."
+        "Invalid credentials."
       );
 
     const isMatch = await user.comparePassword(password);
-    if (!isMatch) statusCodeTemplate(res, 401, "Incorrect password.");
+    if (!isMatch) statusCodeTemplate(res, 401, "Invalid credentials.");
 
     const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: "12h" });
     return res.status(200).json({

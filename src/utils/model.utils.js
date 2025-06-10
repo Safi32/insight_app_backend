@@ -1,17 +1,8 @@
-const bcrypt = require("bcryptjs");
-
-async function hashPassword(next) {
-  if (!this.isModified("password")) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
-}
+const allowedRoles = ["owner", "supervisor", "auditor"];
+// regex for checking if the id is a valid mongoose objectId data type
+const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
 module.exports = {
-  hashPassword,
-};
+    allowedRoles,
+    objectIdRegex
+}

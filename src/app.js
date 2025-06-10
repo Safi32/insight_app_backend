@@ -9,7 +9,7 @@ const apiRouter = express.Router();
 
 app.use(cors({ 
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH'],
   credentials: true
 }));
 app.use(express.json());
