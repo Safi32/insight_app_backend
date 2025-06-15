@@ -8,11 +8,7 @@ const departmentRoutes = require("./routes/department.routes");
 const profileRoutes = require("./routes/profile.routes");
 const apiRouter = express.Router();
 
-app.use(cors({ 
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'PATCH'],
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 // routes

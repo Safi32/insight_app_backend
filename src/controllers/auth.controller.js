@@ -5,7 +5,39 @@ const {
   catchTemplate,
   getMissingFields,
 } = require("../utils/api.utils");
-const {allowedRoles} = require("../utils/model.utils");
+const { allowedRoles } = require("../utils/model.utils");
+
+const login = async (email, password, res, authType = "login") => {
+  const jwtSecret = process.env.JWT_SECRET;
+  const user = await User.findOne({ email });
+  if (!user) return statusCodeTemplate(res, 404, "Invalid credentials.");
+
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) statusCodeTemplate(res, 401, "Invalid credentials.");
+
+  const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: "12h" });
+
+  if (authType === "login") {
+    return res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  }
+
+  return res.status(201).json({
+    token,
+    user: {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+    },
+    message: "User registered successfully.",
+  });
+};
 
 exports.register = async (req, res) => {
   const { role, email, password } = req.body;
@@ -33,11 +65,7 @@ exports.register = async (req, res) => {
       );
 
     if (!allowedRoles.includes(role.toLowerCase())) {
-      return statusCodeTemplate(
-        res,
-        400,
-        "Invalid user role."
-      );
+      return statusCodeTemplate(res, 400, "Invalid user role.");
     }
 
     const user = new User({
@@ -48,14 +76,14 @@ exports.register = async (req, res) => {
     });
     await user.save();
 
-    return statusCodeTemplate(res, 201, "User successfully registered.");
+    await login(email, password, res, (authType = "register"));
+    // return statusCodeTemplate(res, 201, "User successfully registered.");
   } catch (error) {
     return catchTemplate(res, error);
   }
 };
 
 exports.login = async (req, res) => {
-  const jwtSecret = process.env.JWT_SECRET;
   const { email, password } = req.body;
   console.log("Login api called");
 
@@ -69,26 +97,7 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email });
-    if (!user)
-      return statusCodeTemplate(
-        res,
-        404,
-        "Invalid credentials."
-      );
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) statusCodeTemplate(res, 401, "Invalid credentials.");
-
-    const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: "12h" });
-    return res.status(200).json({
-      token,
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-      },
-    });
+    await login(email, password, res);
   } catch (error) {
     return catchTemplate(res, error);
   }
