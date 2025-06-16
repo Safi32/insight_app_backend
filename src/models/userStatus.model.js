@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const userLogsSchema = new mongoose.Schema({
+const userStatusSchema = new mongoose.Schema({
   userId: {
     required: true,
     type: mongoose.Schema.Types.ObjectId,
@@ -12,4 +12,4 @@ const userLogsSchema = new mongoose.Schema({
   timeStamp: Date,
 });
 
-module.exports = mongoose.model("UserLogs", userLogsSchema);
+module.exports = mongoose.model("UserStatus", userStatusSchema, "user_status");
