@@ -6,6 +6,7 @@ const {
   getMissingFields,
 } = require("../utils/api.utils");
 const { allowedRoles } = require("../utils/model.utils");
+const { setStatus } = require("../utils/status.utils");
 
 const login = async (email, password, res, authType = "login") => {
   const jwtSecret = process.env.JWT_SECRET;
@@ -15,8 +16,11 @@ const login = async (email, password, res, authType = "login") => {
   const isMatch = await user.comparePassword(password);
   if (!isMatch) statusCodeTemplate(res, 401, "Invalid credentials.");
 
-  const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: "12h" });
+  const userId = user._id;
 
+  const token = jwt.sign({ id: userId }, jwtSecret, { expiresIn: "12h" });
+
+  await setStatus(userId, "Active");
   if (authType === "login") {
     return res.status(200).json({
       token,
@@ -43,17 +47,7 @@ exports.register = async (req, res) => {
   const { role, email, password } = req.body;
   console.log("Register api called");
 
-  const missingFields = getMissingFields(
-    ["role", "email", "password"],
-    req.body
-  );
-  if (missingFields.length > 0) {
-    return statusCodeTemplate(
-      res,
-      400,
-      `Missing required field(s): ${missingFields.join(", ")}`
-    );
-  }
+  getMissingFields(["role", "email", "password"], req.body, res);
 
   try {
     const existingUser = await User.findOne({ email });
@@ -87,14 +81,7 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
   console.log("Login api called");
 
-  const missingFields = getMissingFields(["email", "password"], req.body);
-  if (missingFields.length > 0) {
-    return statusCodeTemplate(
-      res,
-      400,
-      `Missing required field(s): ${missingFields.join(", ")}`
-    );
-  }
+  getMissingFields(["email", "password"], req.body, res);
 
   try {
     await login(email, password, res);

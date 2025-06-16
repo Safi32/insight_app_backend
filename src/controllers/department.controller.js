@@ -9,14 +9,7 @@ const { objectIdRegex } = require("../utils/model.utils");
 
 const addDepartment = async (req, res) => {
   const { name, description } = req.body;
-  const missingFields = getMissingFields(["name"], req.body);
-  if (missingFields.length > 0) {
-    return statusCodeTemplate(
-      res,
-      400,
-      `Missing required field(s): ${missingFields.join(", ")}`
-    );
-  }
+  await getMissingFields(["name"], req.body, res);
 
   try {
     const department = await Department({ name, description });
@@ -47,14 +40,7 @@ const getAllDepartments = async (req, res) => {
 const getDepartment = async (req, res) => {
   const id = req.params.id;
 
-  const missingFields = getMissingFields(["id"], req.params);
-  if (missingFields.length > 0) {
-    return statusCodeTemplate(
-      res,
-      400,
-      `Missing required field(s): ${missingFields.join(", ")}`
-    );
-  }
+  await getMissingFields(["id"], req.params, res);
 
   if (id.length < 24 || !objectIdRegex.test(id))
     return statusCodeTemplate(res, 404, "Invalid id.");
@@ -79,14 +65,7 @@ const getDepartment = async (req, res) => {
 const getUserDepartment = async (req, res) => {
   const id = req.params.id;
 
-  const missingFields = getMissingFields(["id"], req.params);
-  if (missingFields.length > 0) {
-    return statusCodeTemplate(
-      res,
-      400,
-      `Missing required field(s): ${missingFields.join(", ")}`
-    );
-  }
+  await getMissingFields(["id"], req.params, res);
 
   if (id.length < 24 || !objectIdRegex.test(id))
     return statusCodeTemplate(res, 404, "Invalid id.");
@@ -109,14 +88,8 @@ const getUserDepartment = async (req, res) => {
 const updateUserDepartment = async (req, res) => {
   const { departmentId, userId } = req.body;
 
-  const missingFields = getMissingFields(["departmentId", "userId"], req.body);
-  if (missingFields.length > 0) {
-    return statusCodeTemplate(
-      res,
-      400,
-      `Missing required field(s): ${missingFields.join(", ")}`
-    );
-  }
+  await getMissingFields(["departmentId", "userId"], req.params, res);
+
 
   if (departmentId.length < 24 || !objectIdRegex.test(departmentId))
     return statusCodeTemplate(res, 404, "Invalid department id.");

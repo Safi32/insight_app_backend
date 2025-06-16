@@ -7,9 +7,16 @@ const catchTemplate = (res, error) => {
   return statusCodeTemplate(res, 500, "Internal Server Error");
 };
 
-const getMissingFields = (requiredFields, body) => {
-  return requiredFields.filter((field) => !body[field]);
-};
+const getMissingFields = (requiredFields, body, res) => {
+  const missingFields = requiredFields.filter((field) => !body[field]);
+  if (missingFields.length > 0) {
+    return statusCodeTemplate(
+      res,
+      400,
+      `Missing required field(s): ${missingFields.join(", ")}`
+    );
+  }
+}
 
 module.exports = {
     statusCodeTemplate,
