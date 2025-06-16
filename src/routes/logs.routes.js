@@ -4,5 +4,6 @@ const { verifyToken } = require("../middlewares/verification.middleware");
 const router = express.Router();
 
 router.post("/set-status", verifyToken, logsController.setUserStatus);
+router.post("/get-status", verifyToken, logsController.getUserStatus);
 
 module.exports = router;

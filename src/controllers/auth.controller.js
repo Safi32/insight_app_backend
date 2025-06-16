@@ -47,7 +47,7 @@ exports.register = async (req, res) => {
   const { role, email, password } = req.body;
   console.log("Register api called");
 
-  getMissingFields(["role", "email", "password"], req.body, res);
+  if (getMissingFields(["role", "email", "password"], req.body, res)) return;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -81,7 +81,7 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
   console.log("Login api called");
 
-  getMissingFields(["email", "password"], req.body, res);
+  if (getMissingFields(["email", "password"], req.body, res)) return;
 
   try {
     await login(email, password, res);

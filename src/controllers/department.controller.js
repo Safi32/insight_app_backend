@@ -9,7 +9,7 @@ const { objectIdRegex } = require("../utils/model.utils");
 
 const addDepartment = async (req, res) => {
   const { name, description } = req.body;
-  await getMissingFields(["name"], req.body, res);
+  if (getMissingFields(["name"], req.body, res)) return;
 
   try {
     const department = await Department({ name, description });
@@ -40,7 +40,7 @@ const getAllDepartments = async (req, res) => {
 const getDepartment = async (req, res) => {
   const id = req.params.id;
 
-  await getMissingFields(["id"], req.params, res);
+  if(getMissingFields(["id"], req.params, res)) return;
 
   if (id.length < 24 || !objectIdRegex.test(id))
     return statusCodeTemplate(res, 404, "Invalid id.");
@@ -65,7 +65,7 @@ const getDepartment = async (req, res) => {
 const getUserDepartment = async (req, res) => {
   const id = req.params.id;
 
-  await getMissingFields(["id"], req.params, res);
+  if(getMissingFields(["id"], req.params, res)) return;
 
   if (id.length < 24 || !objectIdRegex.test(id))
     return statusCodeTemplate(res, 404, "Invalid id.");
@@ -88,7 +88,7 @@ const getUserDepartment = async (req, res) => {
 const updateUserDepartment = async (req, res) => {
   const { departmentId, userId } = req.body;
 
-  await getMissingFields(["departmentId", "userId"], req.params, res);
+  if(getMissingFields(["departmentId", "userId"], req.params, res)) return;
 
 
   if (departmentId.length < 24 || !objectIdRegex.test(departmentId))

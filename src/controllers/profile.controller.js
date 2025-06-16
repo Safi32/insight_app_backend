@@ -9,7 +9,7 @@ const User = require("../models/user.model");
 const getProfile = async (req, res) => {
   const id = req.params.id;
 
-  await getMissingFields(["id"], req.params, res);
+  if(getMissingFields(["id"], req.params, res)) return;
 
   if (id.length < 24 || !objectIdRegex.test(id))
     return statusCodeTemplate(res, 404, "Invalid user id.");

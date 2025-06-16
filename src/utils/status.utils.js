@@ -3,7 +3,7 @@ const UserLogs = require("../models/userLogs.model");
 const { getMissingFields, statusCodeTemplate } = require("./api.utils");
 
 const setStatus = async (userId, status) => {
-  getMissingFields(["userId", "status"], { userId, status });
+  if (getMissingFields(["userId", "status"], { userId, status })) return;
 
   const newLog = new UserLogs({
     timeStamp: Date.now(),
