@@ -26,8 +26,10 @@ const login = async (email, password, res, authType = "login") => {
       token,
       user: {
         id: user._id,
+        name: user.name,
         email: user.email,
         role: user.role,
+        department: user.department,
       },
     });
   }
@@ -36,18 +38,21 @@ const login = async (email, password, res, authType = "login") => {
     token,
     user: {
       id: user._id,
+      name: user.name,
       email: user.email,
       role: user.role,
+      department: user.department,
     },
     message: "User registered successfully.",
   });
 };
 
 exports.register = async (req, res) => {
-  const { role, email, password } = req.body;
+  const { role, email, password, name } = req.body;
   console.log("Register api called");
 
-  if (getMissingFields(["role", "email", "password"], req.body, res)) return;
+  if (getMissingFields(["role", "email", "password", "name"], req.body, res))
+    return;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -63,6 +68,7 @@ exports.register = async (req, res) => {
     }
 
     const user = new User({
+      name: name,
       email: email,
       password: password,
       role: role,

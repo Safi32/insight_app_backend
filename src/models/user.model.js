@@ -4,6 +4,10 @@ const { allowedRoles } = require("../utils/model.utils");
 
 const userSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       unique: true,

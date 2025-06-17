@@ -26,6 +26,11 @@ const getProfile = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  const { userId, update } = req.body;
+  
+};
+
 module.exports = {
   getProfile,
 };
