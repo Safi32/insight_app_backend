@@ -11,8 +11,6 @@ const apiRouter = express.Router();
 
 app.use(cors());
 app.use(express.json());
-
-// routes
 apiRouter.use('/auth', authRoutes);
 apiRouter.use('/department', departmentRoutes);
 apiRouter.use('/profile', profileRoutes);

@@ -7,6 +7,7 @@ const {
 } = require("../utils/api.utils");
 const { allowedRoles } = require("../utils/model.utils");
 const { setStatus } = require("../utils/status.utils");
+const EmailUtils = require("../utils/email.utils").default;
 
 const login = async (email, password, res, authType = "login") => {
   const jwtSecret = process.env.JWT_SECRET;
@@ -76,8 +77,12 @@ exports.register = async (req, res) => {
     });
     await user.save();
 
+    // Generate and send OTP after registration
+    const otp = EmailUtils.generateOTP();
+    otpStore[email] = { otp, createdAt: Date.now() };
+    await EmailUtils.sendOTPEmail({ to: email, otp });
+
     await login(email, password, res, (authType = "register"));
-    // return statusCodeTemplate(res, 201, "User successfully registered.");
   } catch (error) {
     return catchTemplate(res, error);
   }
@@ -94,4 +99,39 @@ exports.login = async (req, res) => {
   } catch (error) {
     return catchTemplate(res, error);
   }
+};
+
+const otpStore = {};
+
+exports.sendOTP = async (req, res) => {
+  const { email } = req.body;
+  if (getMissingFields(["email"], req.body, res)) return;
+  try {
+    const otp = EmailUtils.generateOTP();
+    otpStore[email] = { otp, createdAt: Date.now() };
+    await EmailUtils.sendOTPEmail({ to: email, otp });
+    return res.status(200).json({ message: "OTP sent successfully." });
+  } catch (error) {
+    return catchTemplate(res, error);
+  }
+};
+
+exports.verifyOTP = (req, res) => {
+  const { email, otp } = req.body;
+  if (getMissingFields(["email", "otp"], req.body, res)) return;
+  const record = otpStore[email];
+  if (!record) {
+    return statusCodeTemplate(res, 400, "No OTP sent to this email or OTP expired.");
+  }
+  
+  const isExpired = Date.now() - record.createdAt > 5 * 60 * 1000;
+  if (isExpired) {
+    delete otpStore[email];
+    return statusCodeTemplate(res, 400, "OTP expired. Please request a new one.");
+  }
+  if (record.otp !== otp) {
+    return statusCodeTemplate(res, 400, "Invalid OTP.");
+  }
+  delete otpStore[email];  
+  return res.status(200).json({ message: "OTP verified successfully." });
 };
