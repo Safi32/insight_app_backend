@@ -8,6 +8,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    displayName: {
+      type: String,
+      default: function() {
+        return this.name;
+      }
+    },
     email: {
       type: String,
       unique: true,
@@ -22,7 +28,15 @@ const userSchema = new mongoose.Schema(
       required: true,
       enum: allowedRoles,
     },
-    picture: mongoose.Schema.Types.Mixed,
+    profilePicture: {
+      type: String,
+      default: null
+    },
+    bio: {
+      type: String,
+      maxlength: 500,
+      default: ""
+    },
     department: {
       type: mongoose.Schema.Types.Mixed,
       ref: "Department",
@@ -31,7 +45,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// hash the password before saving
+ 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
