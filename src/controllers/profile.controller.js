@@ -73,7 +73,11 @@ const updateProfile = async (req, res) => {
     if (email) updateData.email = email;
     if (phoneNumber) updateData.phoneNumber = phoneNumber;
     if (bio !== undefined) updateData.bio = bio;
-    if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
+    if (profilePicture !== undefined) {
+      updateData.profilePicture = profilePicture;
+      // Mark as custom when user updates their profile picture
+      updateData.profilePictureSource = 'custom';
+    }
 
     // Update user
     const updatedUser = await User.findByIdAndUpdate(

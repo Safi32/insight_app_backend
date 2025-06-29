@@ -21,8 +21,9 @@ const userSchema = new mongoose.Schema(
     },
     phoneNumber: {
       type: String,
-      required: true,
-      unique: true
+      required: false,
+      unique: true,
+      sparse: true // This allows multiple null/undefined values while maintaining uniqueness for non-null values
     },
     password: { 
       type: String, 
@@ -37,6 +38,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null
     },
+    profilePictureSource: {
+      type: String,
+      enum: ['google', 'custom', 'default'],
+      default: 'default'
+    },
     bio: {
       type: String,
       maxlength: 500,
@@ -49,6 +55,11 @@ const userSchema = new mongoose.Schema(
     lastLogin: {
       type: Date,
       default: null
+    },
+    firebaseUid: {
+      type: String,
+      default: null,
+      sparse: true // This allows multiple null/undefined values while maintaining uniqueness for non-null values
     },
   },
   { timestamps: true }
