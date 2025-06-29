@@ -12,7 +12,9 @@ const adminRoutes = require("./routes/admin.routes");
 const apiRouter = express.Router();
 
 app.use(cors());
-app.use(express.json());
+// Increase payload limit for image uploads (50MB)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 apiRouter.use('/auth', authRoutes);
 apiRouter.use('/department', departmentRoutes);
 apiRouter.use('/profile', profileRoutes);

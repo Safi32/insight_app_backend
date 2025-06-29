@@ -21,14 +21,19 @@ const login = async (email, password, role, res, authType = "login") => {
 
   const token = jwt.sign({ id: userId }, jwtSecret, { expiresIn: "12h" });
 
+  // Update last login time
+  await User.findByIdAndUpdate(userId, { lastLogin: new Date() });
+
   await setStatus(userId, "Active");
   if (authType === "login") {
     return res.status(200).json({
       token,
       user: {
         id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
+        phoneNumber: user.phoneNumber,
         role: user.role,
         department: user.department,
       },
@@ -39,8 +44,10 @@ const login = async (email, password, role, res, authType = "login") => {
     token,
     user: {
       id: user._id,
+      _id: user._id,
       name: user.name,
       email: user.email,
+      phoneNumber: user.phoneNumber,
       role: user.role,
       department: user.department,
     },
@@ -84,8 +91,8 @@ exports.verifyOTP = (req, res) => {
 };
 
 exports.verifyOTPAndRegister = async (req, res) => {
-  const { email, otp, name, password, role } = req.body;
-  if (getMissingFields(["email", "otp", "name", "password", "role"], req.body, res)) return;
+  const { email, otp, name, password, role, phoneNumber } = req.body;
+  if (getMissingFields(["email", "otp", "name", "password", "role", "phoneNumber"], req.body, res)) return;
 
   const record = otpStore[email];
   if (!record) {
@@ -111,6 +118,14 @@ exports.verifyOTPAndRegister = async (req, res) => {
         "A user with this email already exists."
       );
 
+    const existingPhone = await User.findOne({ phoneNumber });
+    if (existingPhone)
+      return statusCodeTemplate(
+        res,
+        400,
+        "A user with this phone number already exists."
+      );
+
     if (!allowedRoles.includes(role.toLowerCase())) {
       return statusCodeTemplate(res, 400, "Invalid user role.");
     }
@@ -118,6 +133,7 @@ exports.verifyOTPAndRegister = async (req, res) => {
     const user = new User({
       name: name,
       email: email,
+      phoneNumber: phoneNumber,
       password: password,
       role: role,
       department: "",
@@ -145,6 +161,34 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     return statusCodeTemplate(res, 200, "Password updated successfully.");
+  } catch (error) {
+    return catchTemplate(res, error);
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.id; // From JWT token
+
+  if (getMissingFields(["currentPassword", "newPassword"], req.body, res)) return;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return statusCodeTemplate(res, 404, "User not found.");
+    }
+
+    // Verify current password
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return statusCodeTemplate(res, 401, "Current password is incorrect.");
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    return statusCodeTemplate(res, 200, "Password changed successfully.");
   } catch (error) {
     return catchTemplate(res, error);
   }

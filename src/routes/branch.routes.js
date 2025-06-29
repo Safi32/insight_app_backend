@@ -3,8 +3,8 @@ const { verifyToken, verifyRole } = require("../middlewares/verification.middlew
 const branchController = require("../controllers/branch.controller");
 const router = express.Router();
 
-// Admin only routes (require admin role)
-router.post("/add-branch", verifyToken, verifyRole(["admin"]), branchController.addBranch);
+// Admin only routes (require authentication only)
+router.post("/add-branch", verifyToken, branchController.addBranch);
 router.put("/update-branch/:branchId", verifyToken, verifyRole(["admin"]), branchController.updateBranch);
 router.delete("/delete-branch/:branchId", verifyToken, verifyRole(["admin"]), branchController.deleteBranch);
 

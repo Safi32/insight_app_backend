@@ -46,6 +46,10 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       ref: "Department",
     },
+    lastLogin: {
+      type: Date,
+      default: null
+    },
   },
   { timestamps: true }
 );

@@ -20,11 +20,19 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-const verifyRole = (requiredRole) => {
+const verifyRole = (requiredRoles) => {
   return (req, res, next) => {
-    if (!req.user || req.user.role !== requiredRole) {
+    if (!req.user) {
       return statusCodeTemplate(res, 403, "Access denied");
     }
+
+    // Handle both single role string and array of roles
+    const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
+    
+    if (!roles.includes(req.user.role)) {
+      return statusCodeTemplate(res, 403, "Access denied");
+    }
+    
     next();
   };
 };

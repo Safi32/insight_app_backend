@@ -87,6 +87,7 @@ exports.getAllUsers = async (req, res) => {
         department: user.department,
         profilePicture: user.profilePicture,
         bio: user.bio,
+        lastLogin: user.lastLogin,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       }))

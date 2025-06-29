@@ -19,7 +19,10 @@ const getProfile = async (req, res) => {
     if (!user) return statusCodeTemplate(res, 404, "user not found.");
 
     res.status(200).json({
-      user,
+      user: {
+        ...user.toObject(),
+        id: user._id,
+      },
     });
   } catch (error) {
     return catchTemplate(res, error);
@@ -27,7 +30,7 @@ const getProfile = async (req, res) => {
 };
 
 const updateProfile = async (req, res) => {
-  const { name, displayName, email, bio, profilePicture } = req.body;
+  const { name, displayName, email, phoneNumber, bio, profilePicture } = req.body;
   const userId = req.params.userId; // From URL parameter
 
   // Validate user ID
@@ -50,6 +53,14 @@ const updateProfile = async (req, res) => {
       }
     }
 
+    // Check if phone number is being changed and if it's already taken
+    if (phoneNumber && phoneNumber !== user.phoneNumber) {
+      const existingUser = await User.findOne({ phoneNumber });
+      if (existingUser) {
+        return statusCodeTemplate(res, 400, "Phone number already exists.");
+      }
+    }
+
     // Validate bio length
     if (bio && bio.length > 500) {
       return statusCodeTemplate(res, 400, "Bio cannot exceed 500 characters.");
@@ -60,6 +71,7 @@ const updateProfile = async (req, res) => {
     if (name) updateData.name = name;
     if (displayName) updateData.displayName = displayName;
     if (email) updateData.email = email;
+    if (phoneNumber) updateData.phoneNumber = phoneNumber;
     if (bio !== undefined) updateData.bio = bio;
     if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
 
@@ -74,9 +86,11 @@ const updateProfile = async (req, res) => {
       message: "Profile updated successfully.",
       user: {
         id: updatedUser._id,
+        _id: updatedUser._id,
         name: updatedUser.name,
         displayName: updatedUser.displayName,
         email: updatedUser.email,
+        phoneNumber: updatedUser.phoneNumber,
         bio: updatedUser.bio,
         profilePicture: updatedUser.profilePicture,
         role: updatedUser.role,
